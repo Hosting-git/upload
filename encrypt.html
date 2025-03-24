@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HTML Encryptor By ~ RenXploit</title>
+  <link rel="icon" href="https://www.freefavicon.com/freefavicons/icons/source-code-icon-152-213242.png">
+  <meta name="description" content="Encrypt HTML dengan teknologi canggih, anti-curi, dan aman.">
+  <meta name="keywords" content="encrypt html, HTML encryption, Base64, Hex, AES-256, cyber security">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://BOY122333.github.io/encrypt-html">
+  <meta property="og:title" content="HTML Encryptor By ~ RenXploit">
+  <meta property="og:description" content="Encrypt HTML dengan teknologi canggih, anti-curi, dan aman.">
+  <meta property="og:url" content="https://BOY122333.github.io/encrypt-html">
+  <meta property="og:type" content="website">
+  
+  <!-- CryptoJS Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-gradient-start: #0d0d0d;
+      --bg-gradient-end: #1a1a1a;
+      --container-bg: rgba(20, 20, 20, 0.95);
+      --primary-color: #0ff;
+      --secondary-color: #ff4081;
+      --accent-color: #40c4ff;
+      --text-color: #e0e0e0;
+      --border-color: #0ff;
+      --input-bg: #262626;
+      --shadow-color: rgba(0, 255, 255, 0.3);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+      animation: backgroundPulse 6s ease-in-out infinite alternate;
+    }
+    @keyframes backgroundPulse {
+      0% { filter: brightness(0.9); }
+      100% { filter: brightness(1.1); }
+    }
+    h1, h3 {
+      margin: 10px 0;
+      text-shadow: 0px 4px 8px var(--shadow-color);
+    }
+    h1 { color: var(--primary-color); font-size: 3em; }
+    h3 { color: var(--secondary-color); font-size: 1.5em; }
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background: var(--container-bg);
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.8);
+      text-align: center;
+      animation: fadeIn 1s ease-out;
+      margin-bottom: 30px;
+    }
+    textarea {
+      width: 100%;
+      height: 250px;
+      margin: 20px 0;
+      padding: 20px;
+      background: var(--input-bg);
+      color: var(--accent-color);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      resize: vertical;
+      font-family: monospace;
+      font-size: 1em;
+      outline: none;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+    textarea:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 12px var(--accent-color);
+    }
+    button {
+      background: var(--border-color);
+      border: none;
+      padding: 14px 30px;
+      margin: 10px;
+      color: #121212;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    button:hover {
+      background: var(--accent-color);
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    .radio-group {
+      margin: 20px 0;
+    }
+    .radio-group label {
+      margin-right: 25px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    .radio-group label:hover {
+      color: var(--accent-color);
+    }
+    #passwordContainer, #layerContainer, #fileContainer {
+      margin: 15px 0;
+    }
+    #passwordContainer { display: none; }
+    input[type="password"],
+    input[type="number"],
+    input[type="file"] {
+      padding: 12px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--accent-color);
+      font-size: 1em;
+      outline: none;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+    input[type="password"]:focus,
+    input[type="number"]:focus,
+    input[type="file"]:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 12px var(--accent-color);
+    }
+    #loadingOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .spinner {
+      border: 10px solid #f3f3f3;
+      border-top: 10px solid var(--border-color);
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .contact-section {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(20, 20, 20, 0.9);
+      border: 2px solid var(--border-color);
+      padding: 30px 40px;
+      border-radius: 15px;
+      text-align: left;
+      animation: fadeIn 1s ease-out;
+      margin-bottom: 30px;
+    }
+    .contact-section h2 { margin-top: 0; color: var(--primary-color); }
+    .contact-section input,
+    .contact-section textarea {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--text-color);
+      font-size: 1em;
+      outline: none;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+    .contact-section input:focus,
+    .contact-section textarea:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 12px var(--accent-color);
+    }
+    .contact-section button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+    }
+    footer {
+      width: 100%;
+      max-width: 1100px;
+      text-align: center;
+      margin-top: 20px;
+      padding: 20px;
+      font-size: 0.85em;
+      color: var(--text-color);
+      border-top: 2px solid var(--border-color);
+      animation: fadeIn 1s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="container">
+    <h1>HTML Encryptor By ~ RenXploit</h1>
+    <h3>sumber asli: github.com/muneebwanee</h3>
+    <p style="color: var(--accent-color); font-size:1.1em;">
+      Enkripsi HTML dengan tampilan modern, anti-curi, dan fitur copy yang super kece!<br>
+      Tambahan lapisan enkripsi untuk keamanan maksimal! Goks abis!
+    </p>
+    
+    <!-- Radio Button for Encryption Type -->
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="enctype" value="basic" checked onclick="setEncryptionType('basic')">
+        Basic Encoding (Base64)
+      </label>
+      <label>
+        <input type="radio" name="enctype" value="advanced" onclick="setEncryptionType('advanced')">
+        Advanced Encoding (Hex)
+      </label>
+      <label>
+        <input type="radio" name="enctype" value="aes" onclick="setEncryptionType('aes')">
+        AES-256 (Password)
+      </label>
+    </div>
+    
+    <!-- Password Input (for AES) -->
+    <div id="passwordContainer">
+      <input type="password" id="passwordField" placeholder="Masukkan password untuk AES-256">
+    </div>
+    
+    <!-- Layer Count Input -->
+    <div id="layerContainer">
+      <input type="number" id="layerCount" min="1" value="1" style="width:80px" title="Jumlah lapisan enkripsi">
+      <span style="color: var(--accent-color); font-size:1em;">Jumlah Lapis Enkripsi</span>
+    </div>
+    
+    <!-- File Upload Container -->
+    <div id="fileContainer">
+      <!-- Button untuk menggunakan File System Access API kalau tersedia -->
+      <button onclick="openFilePicker()">Pilih File dari Storage</button>
+      <!-- Fallback input file -->
+      <input type="file" id="fileInput" accept=".html" onchange="loadFile(event)" style="display:none">
+    </div>
+    
+    <!-- Input Textarea -->
+    <textarea id="InputArea" placeholder="Masukkan HTML di sini atau upload file HTML..." oninput="updateFileSizes()"></textarea>
+    
+    <!-- Action Buttons -->
+    <div>
+      <button onclick="previewCode(0)">Preview Input &#8593;</button>
+      <button onclick="startProcess(encrypt)">Encode</button>
+      <button onclick="copyOutput()">Copy Output</button>
+      <button onclick="previewCode(1)">Preview Output &#8595;</button>
+      <button onclick="runEncrypted()">Run Encrypted</button>
+      <button onclick="downloadEncrypted()">Download Encrypted</button>
+    </div>
+    
+    <!-- File Size Info -->
+    <div style="margin-top:15px; font-size:1em;">
+      <span>Input Size: <span id="topSize">0</span></span> |
+      <span>Output Size: <span id="bottomSize">0</span></span>
+    </div>
+    
+    <!-- Output Textarea -->
+    <textarea id="OutputArea" placeholder="Hasil enkripsi akan muncul di sini..." oninput="updateFileSizes()"></textarea>
+  </div>
+  
+  <!-- Contact Section -->
+  <div class="contact-section">
+    <h2>Contact</h2>
+    <input type="text" id="contactName" placeholder="Nama Kamu">
+    <input type="email" id="contactEmail" placeholder="Email Kamu">
+    <textarea id="contactMessage" rows="4" placeholder="Pesan Kamu"></textarea>
+    <button onclick="sendContact()">Kirim Pesan ke Pemilik Website!</button>
+  </div>
+  
+  <footer>
+    &copy; 2025 HTML Encryptor - Dibuat dengan RenXploit
+  </footer>
+  
+  <script>
+    // Global counter untuk download file
+    let downloadCount = 1;
+    
+    // Fungsi bantu untuk dukungan Unicode di Base64
+    function base64EncodeUnicode(str) {
+      return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => 
+        String.fromCharCode('0x' + p1)
+      ));
+    }
+    function base64DecodeUnicode(str) {
+      return decodeURIComponent(Array.from(atob(str)).map(c => 
+        '%' + c.charCodeAt(0).toString(16).padStart(2, '0')
+      ).join(''));
+    }
+    
+    // Set default tipe enkripsi
+    let encryptionType = 'basic';
+    function setEncryptionType(type) {
+      encryptionType = type;
+      document.getElementById('passwordContainer').style.display = (type === 'aes') ? 'block' : 'none';
+    }
+    
+    function updateFileSizes() {
+      document.getElementById('topSize').innerText = document.getElementById('InputArea').value.length;
+      document.getElementById('bottomSize').innerText = document.getElementById('OutputArea').value.length;
+    }
+    
+    function getLayerCount() {
+      return parseInt(document.getElementById('layerCount').value) || 1;
+    }
+    
+    // Loading overlay functions
+    function showLoading() {
+      document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }
+    
+    function startProcess(processFunction) {
+      showLoading();
+      setTimeout(() => {
+        processFunction();
+        hideLoading();
+      }, 100);
+    }
+    
+    function encrypt() {
+      const input = document.getElementById('InputArea').value;
+      if (!input) {
+        alert("Bro, input HTML lu kosong!");
+        return;
+      }
+      if (encryptionType === 'basic') {
+        encryptBasic(input);
+      } else if (encryptionType === 'advanced') {
+        encryptAdvanced(input);
+      } else if (encryptionType === 'aes') {
+        encryptAES(input);
+      }
+    }
+    
+    // Enkripsi Basic (Base64)
+    function encryptBasic(input) {
+      const layers = getLayerCount();
+      let result = input;
+      for (let i = 0; i < layers; i++) {
+        result = base64EncodeUnicode(result);
+      }
+      const scriptTag = `<script>
+var decoded = '${result}';
+for(var i = 0; i < ${layers}; i++){
+  decoded = (function(str){ 
+    return decodeURIComponent(Array.from(atob(str)).map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0')).join('')); 
+  })(decoded);
+}
+document.write(decoded);
+<\/script>`;
+      document.getElementById('OutputArea').value = scriptTag;
+      updateFileSizes();
+    }
+    
+    // Enkripsi Advanced (Hex via encodeURIComponent)
+    function encryptAdvanced(input) {
+      const layers = getLayerCount();
+      let result = input;
+      for (let i = 0; i < layers; i++) {
+        result = encodeURIComponent(result);
+      }
+      const scriptTag = `<script>
+var decoded = '${result}';
+for(var i = 0; i < ${layers}; i++){
+  decoded = decodeURIComponent(decoded);
+}
+document.write(decoded);
+<\/script>`;
+      document.getElementById('OutputArea').value = scriptTag;
+      updateFileSizes();
+    }
+    
+    // Enkripsi AES-256 dengan PBKDF2, salt & IV random
+    function encryptAES(input) {
+      const layers = getLayerCount();
+      const password = document.getElementById('passwordField').value;
+      if (!password) {
+        alert("Masukkan password untuk enkripsi AES-256, bro!");
+        return;
+      }
+      const hashedPassword = CryptoJS.SHA256(password).toString();
+      const iterations = 25000;
+      let result = input;
+      try {
+        for (let i = 0; i < layers; i++) {
+          const salt = CryptoJS.lib.WordArray.random(128/8);
+          const iv = CryptoJS.lib.WordArray.random(128/8);
+          const key = CryptoJS.PBKDF2(hashedPassword, salt, { keySize: 256/32, iterations: iterations });
+          const encrypted = CryptoJS.AES.encrypt(result, key, { iv: iv });
+          result = "Salted__" + salt.toString() + iv.toString() + encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+        }
+      } catch (e) {
+        alert("Error saat enkripsi AES: " + e.message);
+        return;
+      }
+      const scriptTag = `<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"><\/script>
+<script>
+(function(){
+  var encryptedData = '${result}';
+  var layers = ${layers};
+  var hashedPassword = '${hashedPassword}';
+  while(layers--){
+    if(encryptedData.substr(0,8) !== "Salted__"){
+      document.write("Data tidak valid!");
+      return;
+    }
+    var salt = CryptoJS.enc.Hex.parse(encryptedData.substr(8,32));
+    var iv = CryptoJS.enc.Hex.parse(encryptedData.substr(40,32));
+    var ciphertext = CryptoJS.enc.Hex.parse(encryptedData.substr(72));
+    var encryptedCP = CryptoJS.lib.CipherParams.create({ ciphertext: ciphertext });
+    var key = CryptoJS.PBKDF2(hashedPassword, salt, { keySize: 256/32, iterations: ${iterations} });
+    var decrypted = CryptoJS.AES.decrypt(encryptedCP, key, { iv: iv });
+    encryptedData = decrypted.toString(CryptoJS.enc.Utf8);
+    if(!encryptedData){
+      document.write("Decrypt gagal! Cek password atau integritas data.");
+      return;
+    }
+  }
+  document.write(encryptedData);
+})();
+<\/script>`;
+      document.getElementById('OutputArea').value = scriptTag;
+      updateFileSizes();
+    }
+    
+    // Fungsi untuk menyalin output ke clipboard
+    function copyOutput() {
+      const outputText = document.getElementById('OutputArea').value;
+      if (!outputText) {
+        alert("Output masih kosong, bro!");
+        return;
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(outputText).then(() => {
+          alert("Output berhasil disalin!");
+        }, () => {
+          alert("Gagal menyalin output.");
+        });
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = outputText;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          alert("Output berhasil disalin!");
+        } catch (err) {
+          alert("Gagal menyalin output.");
+        }
+        document.body.removeChild(textarea);
+      }
+    }
+    
+    // Fungsi untuk menjalankan encrypted code di jendela baru
+    function runEncrypted() {
+      const code = document.getElementById('OutputArea').value;
+      if (!code) {
+        alert("Tidak ada kode untuk dijalankan!");
+        return;
+      }
+      const runWindow = window.open("", "runWindow", "width=700,height=400,resizable=yes,scrollbars=yes");
+      if (!runWindow) {
+        alert("Popup diblokir! Aktifkan popup untuk run.");
+        return;
+      }
+      runWindow.document.open();
+      runWindow.document.write(code);
+      runWindow.document.close();
+    }
+    
+    // Fungsi untuk preview kode (input atau output)
+    function previewCode(selection) {
+      const code = (selection === 0) ? document.getElementById('InputArea').value : document.getElementById('OutputArea').value;
+      if (!code) {
+        alert("Tidak ada kode untuk preview!");
+        return;
+      }
+      const previewWindow = window.open("", "previewWindow", "width=700,height=400,resizable=yes,scrollbars=yes");
+      if (!previewWindow) {
+        alert("Popup diblokir! Aktifkan popup untuk preview.");
+        return;
+      }
+      previewWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+          <head>
+            <meta charset="UTF-8">
+            <title>Preview ${selection === 0 ? "Input" : "Output"}</title>
+            <style>
+              body { font-family: 'Poppins', sans-serif; padding: 20px; background: #121212; color: #e0e0e0; }
+              pre { background: #262626; padding: 20px; border-radius: 8px; overflow-x: auto; }
+              button { margin-top: 20px; padding: 12px 22px; background: var(--border-color); border: none; border-radius: 8px; cursor: pointer; }
+              button:hover { background: var(--accent-color); }
+            </style>
+          </head>
+          <body>
+            <pre>${code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
+            <button onclick="window.close()">Close Preview</button>
+          </body>
+        </html>
+      `);
+      previewWindow.document.close();
+    }
+    
+    // Fungsi untuk download hasil encrypt dengan nama file otomatis berubah
+    function downloadEncrypted() {
+      const outputText = document.getElementById('OutputArea').value;
+      if (!outputText) {
+        alert("Tidak ada output untuk didownload!");
+        return;
+      }
+      const blob = new Blob([outputText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      // Jika downloadCount = 1, nama file 'Ren-Encrypt.html', jika lebih, tambahkan '-' + downloadCount
+      let filename = downloadCount === 1 ? "Ren-Encrypt.html" : `Ren-Encrypt-${downloadCount}.html`;
+      a.download = filename;
+      a.href = url;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      downloadCount++;
+    }
+    
+    // Fungsi untuk load file HTML via <input type="file">
+    function loadFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('InputArea').value = e.target.result;
+        updateFileSizes();
+      };
+      reader.onerror = function() {
+        alert("Gagal membaca file!");
+      };
+      reader.readAsText(file);
+    }
+    
+    // Fungsi untuk membuka file menggunakan File System Access API (jika didukung)
+    async function openFilePicker() {
+      if (window.showOpenFilePicker) {
+        try {
+          const [fileHandle] = await window.showOpenFilePicker({
+            types: [{
+              description: 'HTML Files',
+              accept: {'text/html': ['.html']}
+            }],
+            multiple: false
+          });
+          const file = await fileHandle.getFile();
+          const content = await file.text();
+          document.getElementById('InputArea').value = content;
+          updateFileSizes();
+        } catch (err) {
+          alert("Gagal membuka file: " + err);
+        }
+      } else {
+        // Fallback ke input file biasa
+        document.getElementById('fileInput').click();
+      }
+    }
+    
+    // Fungsi untuk mengirim pesan kontak via Telegram
+    function sendContact() {
+      const name = document.getElementById('contactName').value.trim();
+      const email = document.getElementById('contactEmail').value.trim();
+      const message = document.getElementById('contactMessage').value.trim();
+      if (!name || !email || !message) {
+        alert("Harap isi semua field pada Contact, bro.");
+        return;
+      }
+      const text = `*Pesan Kontak Masuk*\n\n*Nama:* ${name}\n*Email:* ${email}\n*Pesan:* ${message}\n\n*Website:* ${window.location.href}\n*Referer:* ${document.referrer}`;
+      const token = "8101440601:AAHVNrd87MOrGEm-lU9xi1dAwZ_pnSr0nkU";
+      const chatId = "6010911941";
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: text,
+          parse_mode: "Markdown"
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.ok) {
+          alert("Pesan kontak berhasil dikirim ke Pemilik Website!");
+          document.getElementById('contactName').value = "";
+          document.getElementById('contactEmail').value = "";
+          document.getElementById('contactMessage').value = "";
+        } else {
+          alert("Gagal mengirim pesan ke Pemilik Website!");
+        }
+      })
+      .catch(err => { alert("Error: " + err); });
+    }
+  </script>
+</body>
+</html>
